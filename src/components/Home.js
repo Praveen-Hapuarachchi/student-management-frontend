@@ -3,6 +3,7 @@ import Calendar from 'react-calendar';  // Import the Calendar component
 import 'react-calendar/dist/Calendar.css';  // Import the CSS for styling
 import Dashboard from './Dashboard';
 import Header from './Header';
+import Footer from './Footer';
 
 
 const Home = () => {
@@ -11,8 +12,9 @@ const Home = () => {
   return (
     <div>
       <Header/>
-      <Calendar onChange={setDate} value={date} />
       <Dashboard />
+      <Calendar onChange={setDate} value={date} />
+      <Footer/>
       
     </div>
   );

@@ -8,6 +8,7 @@ import { Button, List, ListItem, ListItemText, TextField ,IconButton } from '@mu
 
 import { Description, PictureAsPdf, InsertDriveFile, Image } from '@mui/icons-material';
 import DeleteIcon from '@mui/icons-material/Delete'; // Import DeleteIcon
+import Footer from '../Footer';
 
 
 // Function to get the appropriate icon based on file type
@@ -493,6 +494,7 @@ const SubjectPage = () => {
             ) : (
                 <p>Loading...</p>
             )}
+            <Footer/>
         </div>
     );
 };

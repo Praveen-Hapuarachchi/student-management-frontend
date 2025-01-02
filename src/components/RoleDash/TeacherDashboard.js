@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { registerStudent, createSubject, getAllCreatedSubjects } from '../../api-helpers/api-helpers'; // Import API helpers
 import HeaderForUser from './HeaderForUser';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import Footer from '../Footer';
 
 const TeacherDashboard = () => {
   // Student management states
@@ -290,6 +291,7 @@ const TeacherDashboard = () => {
     ) : (
       <p>No subjects found.</p>
     )}
+    <Footer/>
   </div>
 )}
 

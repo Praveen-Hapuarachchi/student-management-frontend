@@ -11,6 +11,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import TablePagination from '@mui/material/TablePagination';
 import { styled } from '@mui/material/styles';
+import Footer from '../Footer';
 
 const columns = [
   { id: 'id', label: 'ID', minWidth: 50 },
@@ -227,6 +228,7 @@ const StudentDashboard = () => {
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Paper>
+      <Footer/>
     </div>
   );
 };
