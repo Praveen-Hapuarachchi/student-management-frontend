@@ -1,7 +1,7 @@
 import React from "react";
 import { Grid, Paper, Typography, Box, Avatar } from "@mui/material";
 import FlagImage from "../assets/flag.png";  // Path to the flag image
-import SchoolBadge from "../assets/school-badge.png";  // Path to the school badge image
+import SchoolBadge from "../assets/school-badgee.png";  // Path to the school badge image
 
 const Dashboard = () => {
   return (
@@ -21,7 +21,7 @@ const Dashboard = () => {
         <Avatar
           alt="School Flag"
           src={FlagImage}
-          sx={{ width: 80, height: 80, marginRight: 2 }} // Increased size
+          sx={{ width: 85, height: 80, marginRight: 2 }} // Increased size
         />
         <Typography
           variant="h4"
