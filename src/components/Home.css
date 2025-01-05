@@ -1,0 +1,22 @@
+/* Ensure the parent container uses a flexible layout */
+.calendar-container {
+    display: flex;
+    justify-content: center; /* Center the calendar horizontally */
+    padding: 20px;
+    margin: 0 auto;
+    max-width: 90%; /* Optional: Restrict maximum width for better readability */
+  }
+  
+  @media (max-width: 768px) {
+    .calendar-container {
+      justify-content: flex-start; /* Align left for smaller screens */
+      padding: 10px;
+    }
+  }
+  
+  @media (min-width: 1200px) {
+    .calendar-container {
+      justify-content: flex-end; /* Align right for larger screens */
+    }
+  }
+  
