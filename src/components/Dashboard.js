@@ -27,7 +27,7 @@ const Dashboard = () => {
           variant="h4"
           sx={{ fontWeight: "bold", color: "#333", textAlign: "center", flexGrow: 1 }}
         >
-          Welcome to the Government School Management Portal
+          Welcome to the Student Management System 
         </Typography>
         <Avatar
           alt="School Badge"
