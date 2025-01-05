@@ -20,7 +20,7 @@ const Header = () => {
          <AppBar
         position="static"
         sx={{
-          backgroundColor: '#228B22', // Change the AppBar background color
+          backgroundColor: '#228B22 ', // Change the AppBar background color
         }}
       >
         <Container maxWidth="xl">
