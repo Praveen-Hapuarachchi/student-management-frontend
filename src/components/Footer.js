@@ -40,6 +40,7 @@ const Footer = () => {
         backgroundColor: "#1976d2", // Same color as the header
         paddingTop: "1rem",
         paddingBottom: "1rem",
+        marginTop: "2rem",
       }}
     >
       <Container maxWidth="lg">

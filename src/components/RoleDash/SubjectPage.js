@@ -335,6 +335,15 @@ const SubjectPage = () => {
                                 onChange={(e) => setScheduledFor(e.target.value)}
                                 fullWidth
                                 margin="normal"
+                                variant="outlined" // Ensures the label floats properly
+                                InputLabelProps={{
+                                    shrink: true, // Forces the label to always shrink (float above the input)
+                                }}
+                                sx={{
+                                    "& .MuiInputBase-root": {
+                                        alignItems: "center", // Ensures proper alignment for the datetime picker
+                                    },
+                                }}
                             />
                             <Button variant="contained" color="primary" onClick={handleCreateAnnouncement}>
                                 Create Announcement

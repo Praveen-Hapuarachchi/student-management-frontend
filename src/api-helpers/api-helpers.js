@@ -106,6 +106,32 @@ export const registerStudent = async (studentData) => {
     }
 };
 
+
+
+// Function to delete a user
+export const deleteUser = async (userId, token) => {
+    try {
+        const res = await axios.delete(`http://localhost:8050/auth/delete/${userId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,  // Include the token in the Authorization header
+            },
+        });
+
+        if (res && res.status === 200) {
+            console.log(`User with ID ${userId} has been deleted successfully.`);
+            return res.data;  // Return the success message
+        } else {
+            console.error("Error deleting user.");
+            return null;
+        }
+    } catch (error) {
+        console.error("Error during user deletion:", error.response ? error.response.data : error.message);
+        return null;
+    }
+};
+
+
+
 // Function to get the authenticated user's information
 export const getAuthenticatedUser = async () => {
     try {
