@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import Calendar from 'react-calendar'; // Import the Calendar component
-import 'react-calendar/dist/Calendar.css'; // Import the CSS for styling
+import Calendar from 'react-calendar'; 
+import 'react-calendar/dist/Calendar.css'; 
 import Header from './Header';
 import Footer from './Footer';
 import Dashboard from './Dashboard';
-import Carousel from './Carousel'; // Import the Carousel component
-import './Home.css'; // Import the CSS file for additional styles
+import Carousel from './Carousel'; 
+import './Home.css'; 
 
 const Home = () => {
   const [date, setDate] = useState(new Date()); // Initialize date state with current date
