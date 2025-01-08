@@ -444,3 +444,42 @@ export const deleteAnnouncement = async (announcementId) => {
     }
 };
 
+
+
+
+
+export const getMessages = async (userId) => {
+    try {
+      const token = localStorage.getItem('jwtToken'); // Assuming the token is saved in localStorage
+      const response = await axios.get(`http://localhost:8050/api/messages/user/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error('Error fetching messages');
+    }
+  };
+  
+
+  export const sendMessage = async (messageData) => {
+    try {
+      const token = localStorage.getItem('jwtToken'); // Get the JWT token from localStorage
+      const response = await axios.post(
+        'http://localhost:8050/api/messages/send', 
+        messageData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+          }
+        }
+      );
+      return response.data;
+    } catch (error) {
+      throw new Error('Error sending message');
+    }
+  };
+  
+
+

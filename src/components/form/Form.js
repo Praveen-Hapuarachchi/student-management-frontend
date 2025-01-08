@@ -26,8 +26,12 @@ const FormDialog = ({ open = false, onClose }) => {
                 console.log('Decoded Token:', decodedToken); // Debug log
 
                 const userRole = decodedToken.role;
+                const userId = decodedToken.id; // Assuming 'userId' exists in the decoded token
                 console.log('User Role:', userRole); // Debug log
+                console.log('User ID:', userId); // Debug log
 
+                // Save the userId in localStorage
+                localStorage.setItem('userId', userId);
                 
 
                 // Direct navigation based on the user role

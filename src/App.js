@@ -7,6 +7,8 @@ import TeacherDashboard from './components/RoleDash/TeacherDashboard';
 import StudentDashboard from './components/RoleDash/StudentDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import SubjectPage from './components/RoleDash/SubjectPage';
+import MessagesPage from './components/RoleDash/MessagesPage';
+import ChatPage from './components/RoleDash/ChatPage';
 
 const App = () => {
   return (
@@ -38,6 +40,8 @@ const App = () => {
           } 
       />
       <Route path="/subject/:subjectId" element={<SubjectPage />} />
+      <Route path="/messages" element={<MessagesPage />} />
+      <Route path="/chat/:receiverId" element={<ChatPage />} />
     </Routes>
   );
 };

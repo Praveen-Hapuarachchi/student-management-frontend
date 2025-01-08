@@ -16,6 +16,7 @@ import { useNavigate } from 'react-router-dom';
 import { updateUser } from '../../api-helpers/api-helpers'; // Ensure the correct path to the updateUser function
 
 import NotificationsIcon from '@mui/icons-material/Notifications'; // Import NotificationsIcon
+import MessageIcon from '@mui/icons-material/Message'; // Import MessageIcon
 import IconButton from '@mui/material/IconButton'; // Import IconButton
 
 // Helper function to convert string to color
@@ -103,6 +104,10 @@ const HeaderForUser = () => {
     }
   };
 
+  const handleMessagesClick = () => {
+    navigate('/messages'); // Navigate to the messages page
+  };
+
   return (
     <>
       <AppBar position="static">
@@ -131,10 +136,19 @@ const HeaderForUser = () => {
             <Box sx={{ flexGrow: 1 }} />
             <IconButton
               color="inherit"
-              sx={{ mr: 2}} // Add spacing
+              sx={{ mr: 2 }} // Add spacing
               onClick={() => alert('Notifications clicked!')} // Placeholder action
             >
-              <NotificationsIcon sx={{ fontSize: '2rem' }}/>
+              <NotificationsIcon sx={{ fontSize: '2rem' }} />
+            </IconButton>
+
+            {/* Message Icon */}
+            <IconButton
+              color="inherit"
+              sx={{ mr: 2 }} // Add spacing
+              onClick={handleMessagesClick} // Add this onClick handler
+            >
+              <MessageIcon sx={{ fontSize: '2rem' }} />
             </IconButton>
 
             {/* Profile Icon */}
