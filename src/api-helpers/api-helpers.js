@@ -480,6 +480,27 @@ export const getMessages = async (userId) => {
       throw new Error('Error sending message');
     }
   };
+
+// Fetch conversation between two users
+export const getMessagesBetweenUsers = async (userId, senderId) => {
+    try {
+      const token = localStorage.getItem('jwtToken'); // Assuming the token is saved in localStorage
+      const url = `http://localhost:8050/api/messages/conversation?senderId=${senderId}&receiverId=${userId}`; // Corrected URL string with backticks
+      const response = await axios.get(url, {
+        headers: {
+          Authorization: `Bearer ${token}`, // Corrected Bearer token header
+        },
+      });
+      console.log('API response:', response.data); // Debug log
+      return response.data; // Ensure that both sender and receiver messages are returned
+    } catch (error) {
+      console.error('Error fetching messages:', error.response ? error.response.data : error.message);
+      return [];
+    }
+  };
   
+ 
+
+
 
 

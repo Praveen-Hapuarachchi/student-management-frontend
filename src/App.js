@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom'; // No need to import BrowserRouter anymore
 import Home from './components/Home';
 import FormDialog from './components/form/Form'; 
 import PrincipalDashboard from './components/RoleDash/PrincipalDashboard';
@@ -16,32 +16,32 @@ const App = () => {
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<FormDialog open={true} />} />
       <Route 
-          path="/protected/principal" 
-          element={
-              <ProtectedRoute roles={['ROLE_PRINCIPAL']}>
-                  <PrincipalDashboard />
-              </ProtectedRoute>
-          } 
+        path="/protected/principal" 
+        element={
+          <ProtectedRoute roles={['ROLE_PRINCIPAL']}>
+            <PrincipalDashboard />
+          </ProtectedRoute>
+        } 
       />
       <Route 
-          path="/protected/teacher" 
-          element={
-              <ProtectedRoute roles={['ROLE_TEACHER']}>
-                  <TeacherDashboard />
-              </ProtectedRoute>
-          } 
+        path="/protected/teacher" 
+        element={
+          <ProtectedRoute roles={['ROLE_TEACHER']}>
+            <TeacherDashboard />
+          </ProtectedRoute>
+        } 
       />
       <Route 
-          path="/protected/student" 
-          element={
-              <ProtectedRoute roles={['ROLE_STUDENT']}>
-                  <StudentDashboard />
-              </ProtectedRoute>
-          } 
+        path="/protected/student" 
+        element={
+          <ProtectedRoute roles={['ROLE_STUDENT']}>
+            <StudentDashboard />
+          </ProtectedRoute>
+        } 
       />
       <Route path="/subject/:subjectId" element={<SubjectPage />} />
       <Route path="/messages" element={<MessagesPage />} />
-      <Route path="/chat/:receiverId" element={<ChatPage />} />
+      <Route path="/chat/:senderId" element={<ChatPage />} />
     </Routes>
   );
 };
