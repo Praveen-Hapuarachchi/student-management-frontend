@@ -11,6 +11,7 @@ const ChatPage = () => {
   const { state } = useLocation(); // Get senderName from state
   const senderName = state?.senderName || 'Unknown'; // Default to 'Unknown' if senderName is not provided
   const userId = localStorage.getItem('userId');
+  const userName = localStorage.getItem('userName'); // Get the username from localStorage
 
   useEffect(() => {
     console.log('userId:', userId); // Debug log
@@ -21,13 +22,13 @@ const ChatPage = () => {
         setIsLoading(true);
         try {
           // First API call: Get messages from sender to receiver (senderId -> userId)
-          const senderMessages = await getMessagesBetweenUsers(senderId, userId); 
+          const senderMessages = await getMessagesBetweenUsers(senderId, userId);
           console.log('Sender to Receiver Messages:', senderMessages); // Debug log
-          
+
           // Second API call: Get messages from receiver to sender (userId -> senderId)
-          const receiverMessages = await getMessagesBetweenUsers(userId, senderId); 
+          const receiverMessages = await getMessagesBetweenUsers(userId, senderId);
           console.log('Receiver to Sender Messages:', receiverMessages); // Debug log
-          
+
           // Combine both message sets and sort them by timestamp
           const allMessages = [...senderMessages, ...receiverMessages].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 
@@ -53,11 +54,16 @@ const ChatPage = () => {
         content: newMessage,
       });
       setNewMessage('');
-      // Fetch updated messages after sending a new message
-      const senderMessages = await getMessagesBetweenUsers(senderId, userId); 
-      const receiverMessages = await getMessagesBetweenUsers(userId, senderId); 
-      const allMessages = [...senderMessages, ...receiverMessages].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-      setMessages(allMessages); // Update messages after sending
+
+      // Add the new message to the state without refetching
+      const newMessageObject = {
+        id: Date.now(), // Temporary ID for the new message
+        sender: { id: userId, fullName: userName },
+        receiver: { id: senderId, fullName: senderName },
+        content: newMessage,
+        timestamp: new Date().toISOString(),
+      };
+      setMessages((prevMessages) => [...prevMessages, newMessageObject]);
     } catch (error) {
       console.error('Error sending message:', error);
     } finally {
@@ -83,17 +89,17 @@ const ChatPage = () => {
             ) : (
               messages.map((message) => (
                 <Box
-                  key={message.id}
+                  key={`${message.id}-${message.timestamp}`} // Ensure unique keys
                   sx={{
                     display: 'flex',
-                    justifyContent: message.sender.id === userId ? 'flex-end' : 'flex-start', // Align messages based on sender
+                    justifyContent: message.sender.fullName === userName ? 'flex-end' : 'flex-start', // Align messages based on sender's name comparison
                     marginBottom: 2,
                   }}
                 >
                   <Paper
                     elevation={3}
                     sx={{
-                      backgroundColor: message.sender.id === userId ? '#dcf8c6' : '#f1f1f1',
+                      backgroundColor: message.sender.fullName === userName ? '#dcf8c6' : '#f1f1f1',
                       color: 'black',
                       borderRadius: 2,
                       padding: '10px 15px',
@@ -102,8 +108,8 @@ const ChatPage = () => {
                     }}
                   >
                     <Typography>{message.content}</Typography>
-                    <Typography variant="caption" sx={{ display: 'block', textAlign: message.sender.id === userId ? 'right' : 'left' }}>
-                      {message.sender.id === userId ? 'You' : message.sender.fullName} at {new Date(message.timestamp).toLocaleString()}
+                    <Typography variant="caption" sx={{ display: 'block', textAlign: message.sender.fullName === userName ? 'right' : 'left' }}>
+                      {message.sender.fullName === userName ? 'You' : message.sender.fullName} at {new Date(message.timestamp).toLocaleString()}
                     </Typography>
                   </Paper>
                 </Box>

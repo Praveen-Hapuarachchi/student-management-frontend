@@ -1,46 +1,130 @@
 import React, { useEffect, useState } from 'react';
-import { getMessages } from '../../api-helpers/api-helpers';
-import { Box, List, ListItem, CircularProgress, Typography } from '@mui/material';
+import { getMessages, sendMessage, getAllUsers, getMessagesBetweenUsers } from '../../api-helpers/api-helpers';
+import { Box, List, ListItem, CircularProgress, Typography, TextField, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 const MessagesPage = () => {
   const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState('');
+  const [receiverId, setReceiverId] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [users, setUsers] = useState([]);
   const userId = localStorage.getItem('userId');
-  const navigate = useNavigate(); // For navigation when a name is clicked
+  const navigate = useNavigate();
 
-  // Fetch messages from API
   useEffect(() => {
     if (userId) {
-      const fetchMessages = async () => {
+      const fetchMessagesAndUsers = async () => {
         setIsLoading(true);
         try {
-          const data = await getMessages(userId);
-          setMessages(data);
+          const [messagesData, usersData] = await Promise.all([getMessages(userId), getAllUsers()]);
+          setMessages(messagesData);
+          setUsers(usersData);
+
+          // Fetch the last message for each contact
+          const contacts = Array.from(
+            [...messagesData].reduce((map, item) => {
+              const contact = item.sender?.id === userId ? item.receiver : item.sender;
+              if (!contact) return map;
+              map.set(contact.id, contact);
+              return map;
+            }, new Map()).values()
+          );
+
+          const lastMessages = await Promise.all(
+            contacts.map(async (contact) => {
+              const conversation = await getMessagesBetweenUsers(userId, contact.id);
+              return {
+                ...contact,
+                lastMessage: conversation.length > 0 ? conversation[conversation.length - 1].content : 'No messages yet',
+                timestamp: conversation.length > 0 ? conversation[conversation.length - 1].timestamp : null,
+              };
+            })
+          );
+
+          setMessages((prevMessages) =>
+            prevMessages.map((msg) => {
+              const contact = lastMessages.find((lm) => lm.id === (msg.sender?.id === userId ? msg.receiver.id : msg.sender.id));
+              return contact ? { ...msg, lastMessage: contact.lastMessage, timestamp: contact.timestamp } : msg;
+            })
+          );
         } catch (error) {
-          console.error('Error fetching messages:', error);
+          console.error('Error fetching data:', error);
         } finally {
           setIsLoading(false);
         }
       };
-      fetchMessages();
+      fetchMessagesAndUsers();
     }
   }, [userId]);
 
-  // Handle clicking on a sender's name to open the chat page
-  const handleSenderClick = (senderId, senderName) => {
-    navigate(`/chat/${senderId}`, { state: { senderId, senderName } }); // Pass senderId and senderName as state
+  const handleSendMessage = async () => {
+    if (!newMessage || !receiverId) return;
+
+    setIsLoading(true);
+    try {
+      await sendMessage({
+        senderId: userId,
+        receiverId,
+        content: newMessage,
+      });
+
+      setNewMessage('');
+      const receiver = users.find((user) => user.id.toString() === receiverId.toString()) || {
+        id: receiverId,
+        fullName: 'Unknown User',
+        role: 'Unknown',
+      };
+
+      const newMessageObject = {
+        sender: { id: userId, fullName: 'You', role: 'ROLE_USER' },
+        receiver,
+        content: newMessage,
+        createdAt: new Date().toISOString(),
+      };
+
+      setMessages((prevMessages) => [...prevMessages, newMessageObject]);
+      navigate(`/chat/${receiverId}`, { state: { senderId: receiver.id, senderName: receiver.fullName } });
+    } catch (error) {
+      console.error('Error sending message:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  // Get unique senders
-  const uniqueSenders = Array.from(
-    messages.reduce((map, message) => {
-      if (!map.has(message.sender.id)) {
-        map.set(message.sender.id, message.sender);
+  const uniqueContacts = Array.from(
+    [...messages].reduce((map, item) => {
+      const contact = item.sender?.id === userId ? item.receiver : item.sender;
+      if (!contact) return map;
+  
+      const existingContact = map.get(contact.id);
+      
+      if (!existingContact || new Date(item.timestamp) > new Date(existingContact.timestamp)) {
+        map.set(contact.id, {
+          id: contact.id,
+          fullName: contact.fullName || 'Unknown User',
+          role: contact.role || 'Unknown',
+          lastMessage: item.lastMessage || 'No messages yet', // Use lastMessage instead of content
+          timestamp: item.timestamp, // Store timestamp for comparison
+        });
       }
+      
       return map;
     }, new Map()).values()
-  );
+  ).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)); // Sort by latest message timestamp
+
+  const getRoleColor = (role) => {
+    switch (role) {
+      case 'ROLE_STUDENT':
+        return 'lightgreen';
+      case 'ROLE_TEACHER':
+        return 'lightblue';
+      case 'ROLE_PRINCIPAL':
+        return 'lightcoral';
+      default:
+        return 'lightgray';
+    }
+  };
 
   return (
     <Box sx={{ padding: 3, maxWidth: 600, margin: '0 auto' }}>
@@ -53,9 +137,9 @@ const MessagesPage = () => {
           <CircularProgress />
         </Box>
       ) : (
-        <List sx={{ paddingBottom: '20px' }}>
-          {uniqueSenders.map((sender) => (
-            <ListItem key={sender.id} sx={{ display: 'flex', flexDirection: 'row' }}>
+        <List>
+          {uniqueContacts.map((contact) => (
+            <ListItem key={contact.id} sx={{ display: 'flex', flexDirection: 'row' }}>
               <Box
                 sx={{
                   display: 'flex',
@@ -64,20 +148,76 @@ const MessagesPage = () => {
                   maxWidth: '70%',
                   padding: 1,
                   marginBottom: 2,
+                  backgroundColor: getRoleColor(contact.role), // Apply role-based background color
+                  borderRadius: 1, // Optional: to round the corners
+                  width: '100%', // Make the container take up full width
                 }}
               >
-                <Typography
-                  variant="body2"
-                  sx={{ fontWeight: 'bold', cursor: 'pointer' }}
-                  onClick={() => handleSenderClick(sender.id, sender.fullName)} // Pass senderId and senderName
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    width: '100%',
+                    alignItems: 'center',
+                  }}
                 >
-                  {sender.fullName}
+                  <Typography
+                    variant="body2"
+                    sx={{ fontWeight: 'bold', cursor: 'pointer', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                    onClick={() =>
+                      navigate(`/chat/${contact.id}`, {
+                        state: { senderId: contact.id, senderName: contact.fullName },
+                      })
+                    }
+                  >
+                    {contact.fullName} (ID: {contact.id})
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: 'normal',
+                      color: 'gray',
+                      backgroundColor: getRoleColor(contact.role),
+                      padding: '2px 8px',
+                      borderRadius: '10px',
+                    }}
+                  >
+                    {contact.role}
+                  </Typography>
+                </Box>
+                <Typography variant="body2" sx={{ color: 'gray', fontSize: '0.85rem' }}>
+                  {contact.lastMessage}
+                </Typography>
+                <Typography variant="caption" sx={{ color: 'gray', fontSize: '0.75rem' }}>
+                  {new Date(contact.timestamp).toLocaleString()}
                 </Typography>
               </Box>
             </ListItem>
           ))}
         </List>
       )}
+
+      <TextField
+        label="Receiver ID"
+        value={receiverId}
+        onChange={(e) => setReceiverId(e.target.value)}
+        fullWidth
+        margin="normal"
+      />
+
+      <TextField
+        label="Type a message"
+        value={newMessage}
+        onChange={(e) => setNewMessage(e.target.value)}
+        fullWidth
+        margin="normal"
+        multiline
+        rows={4}
+      />
+
+      <Button variant="contained" onClick={handleSendMessage} sx={{ mt: 2 }} disabled={!newMessage || !receiverId}>
+        Send Message
+      </Button>
     </Box>
   );
 };
