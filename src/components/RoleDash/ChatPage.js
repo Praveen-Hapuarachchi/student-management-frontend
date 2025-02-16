@@ -48,14 +48,14 @@ const ChatPage = () => {
 
     setIsLoading(true);
     try {
+      // Send message to the server only if the message content is valid
       await sendMessage({
         senderId: userId,
         receiverId: senderId,
         content: newMessage,
       });
-      setNewMessage('');
 
-      // Add the new message to the state without refetching
+      // Add the new message to the state directly after sending it
       const newMessageObject = {
         id: Date.now(), // Temporary ID for the new message
         sender: { id: userId, fullName: userName },
@@ -63,7 +63,16 @@ const ChatPage = () => {
         content: newMessage,
         timestamp: new Date().toISOString(),
       };
-      setMessages((prevMessages) => [...prevMessages, newMessageObject]);
+
+      setMessages((prevMessages) => {
+        // Check if the message already exists to avoid duplication
+        if (!prevMessages.find((msg) => msg.id === newMessageObject.id && msg.timestamp === newMessageObject.timestamp)) {
+          return [...prevMessages, newMessageObject];
+        }
+        return prevMessages;
+      });
+
+      setNewMessage(''); // Clear the input field after sending the message
     } catch (error) {
       console.error('Error sending message:', error);
     } finally {
@@ -87,9 +96,9 @@ const ChatPage = () => {
             {messages.length === 0 ? (
               <Typography>No messages found</Typography>
             ) : (
-              messages.map((message) => (
+              messages.map((message, index) => (
                 <Box
-                  key={`${message.id}-${message.timestamp}`} // Ensure unique keys
+                  key={`${message.id}-${index}`} // Ensure unique keys
                   sx={{
                     display: 'flex',
                     justifyContent: message.sender.fullName === userName ? 'flex-end' : 'flex-start', // Align messages based on sender's name comparison
