@@ -2,6 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { getMessages, sendMessage, getAllUsers, getMessagesBetweenUsers } from '../../api-helpers/api-helpers';
 import { Box, List, ListItem, CircularProgress, Typography, TextField, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import HeaderForUser from './HeaderForUser';
+import SendIcon from '@mui/icons-material/Send'; // Import SendIcon from Material-UI
+import backgroundImage from '../../assets/Message_BG.png'; // Import the background image
+import Footer from '../Footer';
 
 const MessagesPage = () => {
   const [messages, setMessages] = useState([]);
@@ -127,8 +131,19 @@ const MessagesPage = () => {
   };
 
   return (
-    <Box sx={{ padding: 3, maxWidth: 600, margin: '0 auto' }}>
-      <Typography variant="h4" gutterBottom>
+    <Box
+      sx={{
+        padding: 3,
+        maxWidth: 600,
+        margin: '0 auto',
+        backgroundImage: `url(${backgroundImage})`, // Set the background image
+        backgroundSize: 'cover', // Cover the entire area
+        backgroundPosition: 'center', // Center the image
+        backgroundRepeat: 'no-repeat', // Do not repeat the image
+      }}
+    >
+      <HeaderForUser sx={{ width: '100%', marginBottom: 2, display: 'flex', justifyContent: 'flex-end' }}/>
+      <Typography variant="h4" gutterBottom sx={{ marginBottom: 2,marginTop: 2 }}>
         Messages
       </Typography>
 
@@ -215,9 +230,16 @@ const MessagesPage = () => {
         rows={4}
       />
 
-      <Button variant="contained" onClick={handleSendMessage} sx={{ mt: 2 }} disabled={!newMessage || !receiverId}>
+      <Button
+        variant="contained"
+        endIcon={<SendIcon />} // Add the SendIcon to the button
+        onClick={handleSendMessage}
+        sx={{ mt: 2 }}
+        disabled={!newMessage || !receiverId}
+      >
         Send Message
       </Button>
+      <Footer />
     </Box>
   );
 };

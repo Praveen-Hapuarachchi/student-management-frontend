@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { jwtDecode } from 'jwt-decode'; // Fix import
+import {jwtDecode} from 'jwt-decode'; // Fix import
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
@@ -108,6 +108,26 @@ const HeaderForUser = () => {
     navigate('/messages'); // Navigate to the messages page
   };
 
+  const handleTitleClick = () => {
+    const token = localStorage.getItem('jwtToken');
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      console.log('Decoded Token:', decodedToken); // Debug log
+
+      const userRole = decodedToken.role;
+
+      if (userRole === 'ROLE_PRINCIPAL') {
+        navigate('/protected/principal');
+      } else if (userRole === 'ROLE_TEACHER') {  
+        navigate('/protected/teacher');
+      } else if (userRole === 'ROLE_STUDENT') { 
+        navigate('/protected/student');
+      } else {
+        console.error('Unrecognized role:', userRole); // Debug log
+      }
+    }
+  };
+
   return (
     <>
       <AppBar position="static">
@@ -118,7 +138,7 @@ const HeaderForUser = () => {
               variant="h6"
               noWrap
               component="a"
-              href="/"
+              onClick={handleTitleClick} // Add onClick handler
               sx={{
                 mr: 2,
                 display: { xs: 'flex', md: 'flex' },
@@ -127,6 +147,7 @@ const HeaderForUser = () => {
                 letterSpacing: '.3rem',
                 color: 'inherit',
                 textDecoration: 'none',
+                cursor: 'pointer', // Add cursor pointer
               }}
             >
               STUDENT MANAGEMENT SYSTEM

@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { getMessagesBetweenUsers, sendMessage } from '../../api-helpers/api-helpers';
 import { TextField, Button, Box, CircularProgress, Typography, Paper } from '@mui/material';
 import { useParams, useLocation } from 'react-router-dom';
+import HeaderForUser from './HeaderForUser';
+import backgroundImage from '../../assets/Message.png'; // Correct import path for the background image
+import SendIcon from '@mui/icons-material/Send'; // Import SendIcon from Material-UI
 
 const ChatPage = () => {
   const [messages, setMessages] = useState([]);
@@ -32,7 +35,12 @@ const ChatPage = () => {
           // Combine both message sets and sort them by timestamp
           const allMessages = [...senderMessages, ...receiverMessages].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 
-          setMessages(allMessages); // Update state with combined messages
+          // Remove duplicates
+          const uniqueMessages = allMessages.filter((message, index, self) =>
+            index === self.findIndex((m) => m.id === message.id)
+          );
+
+          setMessages(uniqueMessages); // Update state with unique messages
         } catch (error) {
           console.error('Error fetching messages:', error);
         } finally {
@@ -49,7 +57,7 @@ const ChatPage = () => {
     setIsLoading(true);
     try {
       // Send message to the server only if the message content is valid
-      await sendMessage({
+      const response = await sendMessage({
         senderId: userId,
         receiverId: senderId,
         content: newMessage,
@@ -57,20 +65,14 @@ const ChatPage = () => {
 
       // Add the new message to the state directly after sending it
       const newMessageObject = {
-        id: Date.now(), // Temporary ID for the new message
+        id: response.id, // Use the ID from the response
         sender: { id: userId, fullName: userName },
         receiver: { id: senderId, fullName: senderName },
         content: newMessage,
-        timestamp: new Date().toISOString(),
+        timestamp: response.timestamp, // Use the timestamp from the response
       };
 
-      setMessages((prevMessages) => {
-        // Check if the message already exists to avoid duplication
-        if (!prevMessages.find((msg) => msg.id === newMessageObject.id && msg.timestamp === newMessageObject.timestamp)) {
-          return [...prevMessages, newMessageObject];
-        }
-        return prevMessages;
-      });
+      setMessages((prevMessages) => [...prevMessages, newMessageObject]);
 
       setNewMessage(''); // Clear the input field after sending the message
     } catch (error) {
@@ -81,7 +83,20 @@ const ChatPage = () => {
   };
 
   return (
-    <Box sx={{ padding: 3, maxWidth: 600, margin: '0 auto' }}>
+    <Box
+      sx={{
+        padding: 3,
+        maxWidth: 600,
+        margin: '0 auto',
+        backgroundImage: `url(${backgroundImage})`, // Set the background image
+        backgroundSize: 'cover', // Cover the entire area
+        backgroundPosition: 'center', // Center the image
+        backgroundRepeat: 'no-repeat', // Do not repeat the image
+      }}
+    >
+      <Box sx={{ width: '100%', marginBottom: 2, display: 'flex', justifyContent: 'flex-end' }}>
+        <HeaderForUser />
+      </Box>
       <Typography variant="h4" gutterBottom>
         Chat with {senderName}
       </Typography>
@@ -96,9 +111,9 @@ const ChatPage = () => {
             {messages.length === 0 ? (
               <Typography>No messages found</Typography>
             ) : (
-              messages.map((message, index) => (
+              messages.map((message) => (
                 <Box
-                  key={`${message.id}-${index}`} // Ensure unique keys
+                  key={message.id} // Ensure unique keys
                   sx={{
                     display: 'flex',
                     justifyContent: message.sender.fullName === userName ? 'flex-end' : 'flex-start', // Align messages based on sender's name comparison
@@ -138,6 +153,7 @@ const ChatPage = () => {
           />
           <Button
             variant="contained"
+            endIcon={<SendIcon />} // Add the SendIcon to the button
             onClick={handleSendMessage}
             sx={{ mt: 2 }}
             disabled={isLoading || !newMessage}

@@ -475,7 +475,7 @@ export const getMessages = async (userId) => {
           }
         }
       );
-      return response.data;
+      return response.data; // Return the response data including the message ID and timestamp
     } catch (error) {
       throw new Error('Error sending message');
     }
